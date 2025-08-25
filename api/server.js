@@ -49,6 +49,14 @@ app.use('/api/', savedRoutes);
 //   res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
 // });
 
+// Serve Svelte frontend build
+app.use(express.static(path.join(__dirname, "public")));
+
+// Handle SPA routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

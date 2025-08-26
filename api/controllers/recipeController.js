@@ -112,9 +112,17 @@ export const searchRecipesAI = async (req, res, next) => {
 
     let matchedIds = [];
     try {
-      matchedIds = JSON.parse(response.message.content.trim());
+      const rawContent = response.message.content.trim();
+
+      // Extract the first valid JSON array from AI response
+      const match = rawContent.match(/\[.*\]/s);
+      if (match) {
+        matchedIds = JSON.parse(match[0]);
+      } else {
+        throw new Error("No valid JSON array found in AI response");
+      }
     } catch (err) {
-      console.warn("AI ranking failed, returning DB matches directly");
+      console.warn("AI ranking failed, returning DB matches directly:", err.message);
       return res.status(200).json({ results: dbMatches });
     }
 
@@ -122,6 +130,11 @@ export const searchRecipesAI = async (req, res, next) => {
     const rankedRecipes = matchedIds
       .map(id => dbMatches.find(r => r._id.toString() === id))
       .filter(Boolean);
+
+    // If AI returned weird IDs, fallback to DB matches
+    if (rankedRecipes.length === 0) {
+      return res.status(200).json({ results: dbMatches });
+    }
 
     res.status(200).json({ results: rankedRecipes });
   } catch (err) {

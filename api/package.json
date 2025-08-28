@@ -20,6 +20,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
     "multer": "^2.0.0",
+    "ollama": "^0.5.17",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
